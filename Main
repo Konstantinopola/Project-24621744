@@ -5,8 +5,11 @@ import java.util.InputMismatchException;
 
 public class Main {
     public static void main(String[] args) {
+
         Scanner scanner = new Scanner(System.in);
-        int number;
+
+        System.out.print("Choose an option:  \n1.- Open file");
+        int choise;
 
         while (true) {
             try {
@@ -14,11 +17,21 @@ public class Main {
                 number = scanner.nextInt();
                 break;
             } catch (InputMismatchException e) {
-                System.out.println("This is not a number! Please use numbers only.");
+                System.out.println("Incorrect number.");
                 scanner.nextLine();
             }
         }
 
-        System.out.println("You entered: " + number);
+             
+        switch (choise) {
+            case 1:
+                System.out.print("Write name of the file: ");
+                FileMovement file = new FileMovement();
+                file.OpenFile();
+                break;
+
+        }
+
     }
+    
 }
