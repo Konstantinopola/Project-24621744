@@ -1,0 +1,37 @@
+package bg.tu_varna.sit.f24621744.task;
+
+public class Create implements Command {
+    @Override
+    public void execute(String arguments, Session session) {
+        if (!session.isFileOpen()) {
+            System.out.println("Error: Open a file first.");
+            return;
+        }
+
+        String[] parts = arguments.split("\\s+", 2);
+        if (parts.length < 2) {
+            System.out.println("Usage: create <key> <value>");
+            return;
+        }
+
+        String key = parts[0];
+        String value = parts[1];
+
+        String currentJson = session.getJsonInMemory().trim();
+
+        if (currentJson.equals("{}")) {                 // to be a json format
+            session.setJsonInMemory("{\"" + key + "\": \"" + value + "\"}");
+        } else {
+            String updatedJson = currentJson.substring(0, currentJson.lastIndexOf("}"))
+                    + ", \"" + key + "\": \"" + value + "\"}";
+            session.setJsonInMemory(updatedJson);
+        }
+
+        System.out.println("Property '" + key + "' added to memory.");
+    }
+
+    @Override
+    public String getDescription() {
+        return "create <key> <value> - adds a new property to the JSON";
+    }
+}
