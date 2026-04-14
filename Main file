@@ -1,0 +1,55 @@
+package bg.tu_varna.sit.f24621744.task;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+public class Application {
+    private final Map<String, Command> commands = new HashMap<>();
+    private final Session session = new Session();
+
+    public Application() {
+        commands.put("open", new Open());
+        commands.put("close", new Close());
+        commands.put("save", new Save());
+        commands.put("save as", new SaveAs());
+        commands.put("create", new Create());
+        commands.put("exit", new Exit());
+    }
+
+    public void start() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Program started. Type \"help\" for a list of commands.");
+
+        while (true) {
+            System.out.print("> ");
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) continue;
+
+            String[] parts = input.split("\\s+", 2);                    // 1 - command, 2 - name or nothing
+            String commandName = parts[0].toLowerCase();                // "ClOSe" = "close"
+            String arguments = parts.length > 1 ? parts[1] : "";        // command without details - "" empty
+
+            Command command = commands.get(commandName);
+
+            if (command != null) {
+                command.execute(arguments, session);
+            } else if (commandName.equals("help")) {
+                printHelp();
+            } else {
+                System.out.println("Unknown command. Type 'help'.");
+            }
+        }
+    }
+
+    private void printHelp() {
+        System.out.println("Available commands:");
+        for (Command cmd : commands.values()) {
+            System.out.println(cmd.getDescription());
+        }
+    }
+
+    public static void main(String[] args) {
+        new Application().start();
+    }
+}
