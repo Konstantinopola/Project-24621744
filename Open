@@ -15,21 +15,21 @@ public class Open implements Command {
         }
 
         Path path = Paths.get(arguments);
-        try {
-            String content = "{}";
-            if (Files.exists(path)) {
-                content = Files.readString(path);
-            } else {
-                System.out.println("File not found, a new one will be created when saving.");
-            }
-
-            session.openFile(path, content);
-            System.out.println("File opened Successfully: " + path.getFileName());
-
-        } catch (IOException e) {
-            System.out.println("Error while opening file: " + e.getMessage());
-        }
-    }
+  //      try {
+  //          String content = "{}";
+  //          if (Files.exists(path)) {
+  //              content = Files.readString(path);
+  //          } else {
+  //              System.out.println("File not found, a new one will be created when saving.");
+  //          }
+  //
+  //          session.openFile(path, content);
+  //          System.out.println("File opened Successfully: " + path.getFileName());
+  //
+  //      } catch (IOException e) {
+  //          System.out.println("Error while opening file: " + e.getMessage());
+  //      }
+  //  }
 
     @Override
     public String getDescription() {
