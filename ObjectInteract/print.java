@@ -1,3 +1,4 @@
+
 package bg.tu_varna.sit.f24621744.task.ObjectInteract;
 
 import bg.tu_varna.sit.f24621744.task.Command;
@@ -18,3 +19,4 @@ public class Print implements Command {
         return "print - displays the current JSON structure";
     }
 }
+
