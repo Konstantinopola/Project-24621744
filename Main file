@@ -14,6 +14,7 @@ public class Application {
         commands.put("save", new Save());
         commands.put("save as", new SaveAs());
         commands.put("create", new Create());
+        commands.put("print", new Print());
         commands.put("exit", new Exit());
     }
 
