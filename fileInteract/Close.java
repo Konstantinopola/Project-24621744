@@ -1,5 +1,8 @@
 package bg.tu_varna.sit.f24621744.task.fileInteract;
 
+import bg.tu_varna.sit.f24621744.task.Command;
+import bg.tu_varna.sit.f24621744.task.Session;
+
 public class Close implements Command {
 
     @Override
@@ -15,6 +18,6 @@ public class Close implements Command {
 
     @Override
     public String getDescription() {
-        return "closed";
+        return "close - close the file";
     }
 }

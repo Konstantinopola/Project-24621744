@@ -1,5 +1,10 @@
 package bg.tu_varna.sit.f24621744.task.parser;
 
+import bg.tu_varna.sit.f24621744.task.jsonWork.JsonArray;
+import bg.tu_varna.sit.f24621744.task.jsonWork.JsonObject;
+import bg.tu_varna.sit.f24621744.task.jsonWork.JsonPrimitive;
+import bg.tu_varna.sit.f24621744.task.jsonWork.JsonType;
+
 import java.util.List;
 
 public class JsonParser {
@@ -10,12 +15,22 @@ public class JsonParser {
         this.tokens = tokens;
     }
 
-    public JsonToString parse() {
+
+    public JsonType parse() {
         if (tokens.isEmpty()) return null;
         return parseValue();
     }
 
-    private JsonToString parseValue() {
+    public static JsonType parseString (String arguments){
+        Lexer lexer = new Lexer(arguments);
+        List<Token> tokens = lexer.tokenize();
+
+        JsonParser parser = new JsonParser(tokens);
+        return parser.parse();
+    }
+
+
+    private JsonType parseValue() {
         Token token = tokens.get(pos);
 
         switch (token.type) {
@@ -60,7 +75,7 @@ public class JsonParser {
             }
             pos++;
 
-            JsonToString value = parseValue();
+            JsonType value = parseValue();
             jsonObject.add(key, value);
 
             if (tokens.get(pos).type == TokenType.COMMA) {
@@ -76,7 +91,7 @@ public class JsonParser {
         pos++;
 
         while (tokens.get(pos).type != TokenType.RIGHT_BRACKET) {
-            JsonToString value = parseValue();
+            JsonType value = parseValue();
             jsonArray.add(value);
 
             if (tokens.get(pos).type == TokenType.COMMA) {

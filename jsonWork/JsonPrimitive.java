@@ -1,6 +1,6 @@
-package bg.tu_varna.sit.f24621744.task.parser;
+package bg.tu_varna.sit.f24621744.task.jsonWork;
 
-public class JsonPrimitive implements JsonToString {
+public class JsonPrimitive implements JsonType {
     private final Object value;
 
     public JsonPrimitive(Object value) {
@@ -21,5 +21,10 @@ public class JsonPrimitive implements JsonToString {
         }
 
         return value.toString();
+    }
+
+    @Override
+    public String toPrettyString(int indent) {
+        return toJsonString();
     }
 }

@@ -1,8 +1,7 @@
+package bg.tu_varna.sit.f24621744.task.objectInteract;
 
-package bg.tu_varna.sit.f24621744.task.ObjectInteract;
-
-import bg.tu_varna.sit.f24621744.task.Command;
 import bg.tu_varna.sit.f24621744.task.Session;
+import bg.tu_varna.sit.f24621744.task.Command;
 
 public class Print implements Command {
     @Override
@@ -11,7 +10,7 @@ public class Print implements Command {
             System.out.println("Error: No file open.");
             return;
         }
-        System.out.println(session.getRootNode().toJsonString());
+        System.out.println(session.getRootNode().toPrettyString(0));
     }
 
     @Override
@@ -19,4 +18,3 @@ public class Print implements Command {
         return "print - displays the current JSON structure";
     }
 }
-
