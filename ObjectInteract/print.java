@@ -1,9 +1,10 @@
 package bg.tu_varna.sit.f24621744.task.objectInteract;
 
+import bg.tu_varna.sit.f24621744.task.fileInteract.Command;
 import bg.tu_varna.sit.f24621744.task.Session;
-import bg.tu_varna.sit.f24621744.task.Command;
 
 public class Print implements Command {
+
     @Override
     public void execute(String arguments, Session session) {
         if (!session.isFileOpen()) {

@@ -1,4 +1,4 @@
-package bg.tu_varna.sit.f24621744.task;
+package fileInteract;
 
 public interface Command {
     void execute(String arguments, Session session);

@@ -1,29 +1,14 @@
 package bg.tu_varna.sit.f24621744.task;
 
-import bg.tu_varna.sit.f24621744.task.objectInteract.Create;
-import bg.tu_varna.sit.f24621744.task.objectInteract.Print;
-import bg.tu_varna.sit.f24621744.task.objectInteract.Search;
 import bg.tu_varna.sit.f24621744.task.fileInteract.*;
+import fileInteract.Command;
 
-
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
-    private final Map<String, Command> commands = new HashMap<>();
     private final Session session = new Session();
+    CommandFactory factory = new CommandFactory();
 
-    public Main() {
-        commands.put("open", new Open());
-        commands.put("close", new Close());
-        commands.put("save", new Save());
-        commands.put("save as", new SaveAs());
-        commands.put("create", new Create());
-        commands.put("exit", new Exit());
-        commands.put("print", new Print());
-        commands.put("search", new Search());
-    }
 
     public void start() {
         Scanner scanner = new Scanner(System.in);
@@ -38,21 +23,21 @@ public class Main {
             String commandName = parts[0].toLowerCase();                // "ClOSe" = "close"
             String arguments = parts.length > 1 ? parts[1] : "";        // command without details - "" empty
 
-            Command command = commands.get(commandName);
+            Command command = factory.getCommand(userInput);
 
             if (command != null) {
                 command.execute(arguments, session);
             } else if (commandName.equals("help")) {
                 printHelp();
             } else {
-                System.out.println("Unknown command. Type 'help'.");
+                System.out.println("Unknown command. Type \"help\".");
             }
         }
     }
 
     private void printHelp() {
         System.out.println("Available commands:");
-        for (Command cmd : commands.values()) {
+        for (Command cmd : factory.getAllCommands()) {
             System.out.println(cmd.getDescription());
         }
     }

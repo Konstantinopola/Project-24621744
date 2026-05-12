@@ -1,8 +1,8 @@
 package bg.tu_varna.sit.f24621744.task.fileInteract;
 
-import bg.tu_varna.sit.f24621744.task.Command;
 import bg.tu_varna.sit.f24621744.task.Session;
-
+import bg.tu_varna.sit.f24621744.task.jsonWork.CommandHandler;
+import bg.tu_varna.sit.f24621744.task.jsonWork.JsonType;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -18,10 +18,25 @@ public class SaveAs implements Command {
             System.out.println("Error: Please provide a new file path.");
             return;
         }
+        
+        String[] parts = arguments.trim().split("\\s+");
+        JsonType needToSave = session.getRootNode();
 
+        if (parts.length > 1) {
+            String[] path = new String[parts.length - 1];
+            // Cutting what put user and using only path
+            System.arraycopy(parts, 1, path, 0, parts.length - 1);
+
+            needToSave = CommandHandler.get(session.getRootNode(), path);
+
+            if (needToSave == null) {
+                System.out.println("Error: The specified path does not exist. Nothing to save.");
+                return;
+            }
+        }
         try {
-            String prettyJson = session.getRootNode().toPrettyString(0);
-            Files.writeString(Paths.get(arguments), prettyJson);
+            String prettyJson = needToSave.toPrettyString(0);
+            Files.writeString(Paths.get(parts[0]), prettyJson);
 
             System.out.println("Successfully saved as " + arguments);
         } catch (IOException e) {
@@ -31,6 +46,6 @@ public class SaveAs implements Command {
 
     @Override
     public String getDescription() {
-        return "save as <file> - saves the current JSON structure in a new location";
+        return "save_as <file> - saves the current JSON structure in a new location";
     }
 }

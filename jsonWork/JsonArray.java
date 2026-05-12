@@ -1,8 +1,8 @@
 package bg.tu_varna.sit.f24621744.task.jsonWork;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-
 public class JsonArray implements JsonType {
     private final List<JsonType> elements = new ArrayList<>();
 
@@ -53,6 +53,56 @@ public class JsonArray implements JsonType {
         return sb.toString();
     }
 
+    @Override
+    public JsonType getChild(String token) {
+        try {
+            int index = Integer.parseInt(token);
+            if (index >= 0 && index < elements.size()) {
+                return elements.get(index);
+            }
+        } catch (NumberFormatException ignored) {}
+        return null;
+    }
+
+    @Override
+    public boolean removeChild(String token) {
+        try {
+            int index = Integer.parseInt(token);
+            if (index >= 0 && index < elements.size()) {
+                elements.remove(index);
+                return true;
+            }
+        } catch (NumberFormatException ignored) {}
+        return false;
+    }
+
+    @Override
+    public boolean replaceChild(String key, JsonType newValue) {
+        try {
+            int index = Integer.parseInt(key);
+            if (index >= 0 && index < elements.size()) {
+                elements.set(index, newValue); // changing element on index
+                return true;
+            }
+        } catch (NumberFormatException ignored) {}
+        return false;
+    }
+
+    @Override
+    public Collection<JsonType> getValues() {
+        return elements; // all elements
+    }
+
+    @Override
+    public boolean append(JsonType value) {
+        elements.add(value); // array will add element to the end
+        return true;
+    }
+
+    @Override
+    public void addChild(String key, JsonType value) {
+        throw new UnsupportedOperationException("Arrays do not support keys"); // key in Array is not allowed!
+    }
 
 
 }

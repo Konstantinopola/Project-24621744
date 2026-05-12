@@ -1,26 +1,10 @@
 package bg.tu_varna.sit.f24621744.task.jsonWork;
-
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class JsonObject implements JsonType {
     private final Map<String, JsonType> properties = new LinkedHashMap<>();
-
-    public void add(String key, JsonType value) {
-        properties.put(key, value);
-    }
-
-    public JsonType getValue(String key) {
-        return properties.get(key);
-    }
-
-    public Map<String, JsonType> getProperties() {
-        return properties;
-    }
-
-    public void remove(String key) {
-        properties.remove(key);
-    }
 
     @Override
     public String toJsonString() {
@@ -64,5 +48,44 @@ public class JsonObject implements JsonType {
 
         sb.append(space).append("}");
         return sb.toString();
+    }
+    
+    @Override
+    public JsonType getChild(String token) {
+        return properties.get(token);
+    }
+
+    @Override
+    public boolean removeChild(String token) {
+        if (properties.containsKey(token)) {
+            properties.remove(token);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean replaceChild(String key, JsonType newValue) {
+        if (properties.containsKey(key)) {
+            properties.put(key, newValue); // only if key exist
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Collection<JsonType> getValues() {
+        return properties.values();// sent all element and their value
+    }
+
+    @Override
+    public boolean append(JsonType value) {
+        throw new UnsupportedOperationException("Object can`t be added without key!");
+        // no objects without key
+    }
+
+    @Override
+    public void addChild(String key, JsonType value) {
+        properties.put(key, value); // create or override
     }
 }
