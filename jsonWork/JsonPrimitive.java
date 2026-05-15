@@ -3,28 +3,10 @@ package bg.tu_varna.sit.f24621744.task.jsonWork;
 import java.util.Collection;
 import java.util.Collections;
 
-public class JsonPrimitive implements JsonType {
-    private final Object value;
-
-    public JsonPrimitive(Object value) {
-        this.value = value;
-    }
-
-    public Object getValue() {
-        return value;
-    }
+public abstract class JsonPrimitive implements JsonType {
 
     @Override
-    public String toJsonString() {
-        if (value == null) {
-            return "null";
-        }
-        if (value instanceof String) {
-            return "\"" + value + "\"";
-        }
-
-        return value.toString();
-    }
+    public abstract String toJsonString();
 
     @Override
     public String toPrettyString(int indent) {
@@ -64,3 +46,4 @@ public class JsonPrimitive implements JsonType {
         System.err.println("Error: Primitive don`t have a child to add key " + key + "!");
     } //the same
 }
+

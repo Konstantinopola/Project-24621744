@@ -4,7 +4,6 @@ import java.util.List;
 
 public class CommandHandler {
 
-
  public static void create(JsonType root, String[] path, JsonType newValue) {
         JsonType current = root;
 

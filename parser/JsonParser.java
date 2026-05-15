@@ -4,6 +4,10 @@ import bg.tu_varna.sit.f24621744.task.jsonWork.JsonArray;
 import bg.tu_varna.sit.f24621744.task.jsonWork.JsonObject;
 import bg.tu_varna.sit.f24621744.task.jsonWork.JsonPrimitive;
 import bg.tu_varna.sit.f24621744.task.jsonWork.JsonType;
+import jsonWork.primitiveType.JsonPrBoolean;
+import jsonWork.primitiveType.JsonPrNull;
+import jsonWork.primitiveType.JsonPrNumber;
+import jsonWork.primitiveType.JsonPrString;
 
 import java.util.List;
 
@@ -33,26 +37,26 @@ public class JsonParser {
     private JsonType parseValue() {
         Token token = tokens.get(pos);
 
-        switch (token.type) {
+switch (token.type) {
             case LEFT_BRACE:
                 return parseObject();
             case LEFT_BRACKET:
                 return parseArray();
             case STRING:
                 pos++;
-                return new JsonPrimitive(token.value);
+                return new JsonPrString(token.value);
             case NUMBER:
                 pos++;
-                return new JsonPrimitive(token.value);
+                return new JsonPrNumber(Double.parseDouble(token.value));
             case TRUE:
                 pos++;
-                return new JsonPrimitive(true);
+                return new JsonPrBoolean(true);
             case FALSE:
                 pos++;
-                return new JsonPrimitive(false);
+                return new JsonPrBoolean(false);
             case NULL:
                 pos++;
-                return new JsonPrimitive(null);
+                return new JsonPrNull();
             default:
                 throw new RuntimeException("Parser error: Unexpected token " + token.type);
         }

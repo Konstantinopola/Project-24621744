@@ -31,7 +31,7 @@ public class Set implements Command {
             // parse a new string into an object
             JsonType newValue = JsonParser.parseString(jsonString);
 
-            // Пытаемся заменить
+
             boolean success = CommandHandler.set(session.getRootNode(), path, newValue);
 
             if (success) {
