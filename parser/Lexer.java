@@ -11,41 +11,73 @@ public class Lexer {
         this.input = input;
     }
 
-    public List<Token> tokenize() {
+        public List<Token> tokenize() {
         List<Token> tokens = new ArrayList<>();
         while (pos < input.length()) {
             char c = input.charAt(pos);
 
             if (Character.isWhitespace(c)) {
                 pos++;
-            } else if (c == '{') {
-                tokens.add(new Token(TokenType.LEFT_BRACE, "{")); pos++;
-            } else if (c == '}') {
-                tokens.add(new Token(TokenType.RIGHT_BRACE, "}")); pos++;
-            } else if (c == '[') {
-                tokens.add(new Token(TokenType.LEFT_BRACKET, "[")); pos++;
-            } else if (c == ']') {
-                tokens.add(new Token(TokenType.RIGHT_BRACKET, "]")); pos++;
-            } else if (c == ':') {
-                tokens.add(new Token(TokenType.COLON, ":")); pos++;
-            } else if (c == ',') {
-                tokens.add(new Token(TokenType.COMMA, ",")); pos++;
-            } else if (c == '"') {
-                tokens.add(new Token(TokenType.STRING, readString()));
-            } else if (Character.isDigit(c) || c == '-') {
-                tokens.add(new Token(TokenType.NUMBER, readNumber()));
-            } else if (input.startsWith("true", pos)) {
-                tokens.add(new Token(TokenType.TRUE, "true")); pos += 4;
-            } else if (input.startsWith("false", pos)) {
-                tokens.add(new Token(TokenType.FALSE, "false")); pos += 5;
-            } else if (input.startsWith("null", pos)) {
-                tokens.add(new Token(TokenType.NULL, "null")); pos += 4;
-            } else {
-                throw new RuntimeException("Lexer error: Unexpected character '" + c + "' at pos " + pos);
+                continue;
             }
+
+            switch (c) {
+                case '{' -> {
+                    tokens.add(new Token(TokenType.LEFT_BRACE, "{"));
+                    pos++;
+                }
+                case '}' -> {
+                    tokens.add(new Token(TokenType.RIGHT_BRACE, "}"));
+                    pos++;
+                }
+                case '[' -> {
+                    tokens.add(new Token(TokenType.LEFT_BRACKET, "["));
+                    pos++;
+                }
+                case ']' -> {
+                    tokens.add(new Token(TokenType.RIGHT_BRACKET, "]"));
+                    pos++;
+                }
+                case ':' -> {
+                    tokens.add(new Token(TokenType.COLON, ":"));
+                    pos++;
+                }
+                case ',' -> {
+                    tokens.add(new Token(TokenType.COMMA, ","));
+                    pos++;
+                }
+                case '"' -> tokens.add(new Token(TokenType.STRING, readString()));
+
+                default -> {
+                    if (Character.isDigit(c) || c == '-') {
+                        tokens.add(new Token(TokenType.NUMBER, readNumber()));
+                    } else if (Character.isLetter(c)) {
+                        tokens.add(readBoolean()); // true/false/null
+                    } else {
+                        throw new RuntimeException("Lexer error: Unexpected character '" + c + "' at pos " + pos);
+                    }
+                }
+            }
+
         }
         return tokens;
     }
+
+    
+    private Token readBoolean() {
+        int start = pos;
+        while (pos < input.length() && Character.isLetter(input.charAt(pos))) {
+            pos++;
+        }
+        String word = input.substring(start, pos);
+        return switch (word) {
+            case "true" -> new Token(TokenType.TRUE, "true");
+            case "false" -> new Token(TokenType.FALSE, "false");
+            case "null" -> new Token(TokenType.NULL, "null");
+            default -> throw new RuntimeException("Unknown keyword: " + word);
+        };
+    }
+
 
     private String readString() {
         pos++;
