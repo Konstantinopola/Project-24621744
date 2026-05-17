@@ -1,6 +1,7 @@
 package bg.tu_varna.sit.f24621744.task.fileInteract;
 
 
+import Command;
 import bg.tu_varna.sit.f24621744.task.Session;
 
 public class Exit implements Command {

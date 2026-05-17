@@ -19,7 +19,6 @@ public class JsonParser {
         this.tokens = tokens;
     }
 
-
     public JsonType parse() {
         if (tokens.isEmpty()) return null;
         return parseValue();
@@ -37,7 +36,7 @@ public class JsonParser {
     private JsonType parseValue() {
         Token token = tokens.get(pos);
 
-switch (token.type) {
+        switch (token.type) {
             case LEFT_BRACE:
                 return parseObject();
             case LEFT_BRACKET:

@@ -9,6 +9,7 @@ import java.util.List;
 
 public class Search implements Command {
 
+    // execute the search and print all found match
     @Override
     public void execute(String arguments, Session session) {
         if (!session.isFileOpen()) {

@@ -8,7 +8,7 @@ public class Delete implements Command {
 
     @Override
     public void execute(String arguments, Session session) {
- if (!session.isFileOpen()) {
+        if (!session.isFileOpen()) {
             System.out.println("Error: Open a file first.");
             return;
         }

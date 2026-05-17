@@ -5,6 +5,7 @@ import bg.tu_varna.sit.f24621744.task.Session;
 
 public class Print implements Command {
 
+    // Print the current JSON tree
     @Override
     public void execute(String arguments, Session session) {
         if (!session.isFileOpen()) {

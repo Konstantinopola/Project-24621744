@@ -1,7 +1,6 @@
 package bg.tu_varna.sit.f24621744.task;
 
 import bg.tu_varna.sit.f24621744.task.fileInteract.*;
-import fileInteract.Command;
 
 import java.util.Scanner;
 

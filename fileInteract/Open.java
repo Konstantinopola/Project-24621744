@@ -4,7 +4,9 @@ package fileInteract
 import bg.tu_varna.sit.f24621744.task.Session;
 import bg.tu_varna.sit.f24621744.task.jsonWork.JsonObject;
 import bg.tu_varna.sit.f24621744.task.jsonWork.JsonType;
+import bg.tu_varna.sit.f24621744.task.Command;
 import bg.tu_varna.sit.f24621744.task.parser.*;
+import parser.JsonParser;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,16 +27,20 @@ public class Open implements Command {
 
             if (Files.exists(path)) {
                 String content = Files.readString(path);
+                try {
                 JsonType parsedJson = JsonParser.parseString(content);
                 session.openFile(path, parsedJson);
                 System.out.println("Successfully opened: " + path.getFileName());
+            }
+                catch (Exception e) {
+                    System.out.println("Error: The file has invalid JSON format or broken, error: (" + e.getMessage() + ")");
+                    System.out.println("File was NOT opened. Please fix the file or open a valid one.");
+                }
             } else {
                 System.out.println("File not found, creating a new JSON object.");
                 session.openFile(path, new JsonObject());
                 System.out.println("Successfully created: " + path.getFileName());
             }
-
-
         } catch (IOException e) {
             System.out.println("Error while opening file: " + e.getMessage());
         }

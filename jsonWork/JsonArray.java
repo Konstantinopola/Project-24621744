@@ -3,6 +3,7 @@ package bg.tu_varna.sit.f24621744.task.jsonWork;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
 public class JsonArray implements JsonType {
     private final List<JsonType> elements = new ArrayList<>();
 
