@@ -1,12 +1,45 @@
 package bg.tu_varna.sit.f24621744.task.objectInteract;
 
-import bg.tu_varna.sit.f24621744.task.fileInteract.Command;
+import bg.tu_varna.sit.f24621744.task.Command;
 import bg.tu_varna.sit.f24621744.task.Session;
 import bg.tu_varna.sit.f24621744.task.parser.JsonParser;
 
-
+/**
+ * The {@code validate} command: checks the validity of JSON data.
+ * <p>
+ * Works in two modes:
+ * <ul>
+ * <li><b>Without arguments</b> — checks the validity of the currently open file
+ * (a file is considered valid if it was opened successfully).</li>
+ * <li><b>With arguments</b> — attempts to parse the passed string as JSON
+ * and reports whether it is valid JSON.</li>
+ * </ul>
+ * </p>
+ *
+ * <p><b>Syntax:</b></p>
+ * <pre>
+ * validate — check the currently open file
+ * validate {"key": "value"} — check the passed string
+ * validate [1, 2, 3] — check an array
+ * </pre>
+ */
 public class Validate implements Command {
 
+    /**
+     * Performs JSON validation.
+     * <p>
+     * If no arguments are passed, checks whether the file is open in the current session.
+     * (An open file is always valid JSON, since it was already successfully parsed when opened.
+     * </p>
+     * <p>
+     * If arguments are passed, attempts to parse the string using
+     * {@link JsonParser#parseString(String)} and displays the result.
+     * </p>
+     *
+     * @param arguments - JSON string to validate, or an empty string
+     * to validate the current file.
+     * @param session - current application session.
+     */
     @Override
     public void execute(String arguments, Session session) {
         // If user just write command - checking file
@@ -29,8 +62,13 @@ public class Validate implements Command {
         }
     }
 
+    /**
+     * Returns a short description of the command for reference.
+     *
+     * @return a string with the command's syntax and purpose
+     */
     @Override
     public String getDescription() {
-   return "validate <string> - Checks if the passed string matches (or the current file) is valid JSON data.";
+        return "validate <string> - Checks if the passed string matches (or the current file) is valid JSON data.";
     }
 }

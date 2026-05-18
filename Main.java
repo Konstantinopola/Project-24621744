@@ -1,28 +1,50 @@
 package bg.tu_varna.sit.f24621744.task;
 
-import bg.tu_varna.sit.f24621744.task.fileInteract.*;
-
 import java.util.Scanner;
 
+/**
+ * The main application class, implementing the main command processing loop.
+ * <p>
+ * Reads user input from the console, recognizes commands using
+ * {@link CommandFactory}, and executes them, passing the current {@link Session}.
+ * The loop runs until the user enters the command {@code exit}.
+ * </p>
+ */
 public class Main {
+
+    /** The current application session storing the state of the open file. */
     private final Session session = new Session();
+
+    /** Factory that provides access to all registered commands. */
     CommandFactory factory = new CommandFactory();
 
-
+    /**
+     * Starts the application's main loop.
+     * <p>
+     * In the loop:
+     * <ol>
+     * <li>Reads a line of user input.</li>
+     * <li>Splits it into the command name and arguments.</li>
+     * <li>Searches for a command in {@link CommandFactory}.</li>
+     * <li>Executes the found command or displays a help message.</li>
+     * </ol>
+     * The special command {@code help} displays a list of all available commands.
+     * </p>
+     */
     public void start() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Program started. Type \"help\" for a list of commands.");
 
         while (true) {
             System.out.print("> ");
-            String input = scanner.nextLine().trim();
-            if (input.isEmpty()) continue;
+            String userInput = scanner.nextLine().trim();
+            if (userInput.isEmpty()) continue;
 
-            String[] parts = input.split("\\s+", 2);
+            String[] parts = userInput.split("\\s+", 2);
             String commandName = parts[0].toLowerCase();                // "ClOSe" = "close"
             String arguments = parts.length > 1 ? parts[1] : "";        // command without details - "" empty
 
-            Command command = factory.getCommand(userInput);
+            Command command = factory.getCommand(commandName);
 
             if (command != null) {
                 command.execute(arguments, session);
@@ -34,6 +56,14 @@ public class Main {
         }
     }
 
+    /**
+     * Displays a list of all available commands and their descriptions in the console.
+     * <p>
+     * Called when the user enters the command {@code help}.
+     * Iterates over all commands registered in {@link CommandFactory},
+     * and for each, displays the string returned by {@link Command#getDescription()}.
+     * </p>
+     */
     private void printHelp() {
         System.out.println("Available commands:");
         for (Command cmd : factory.getAllCommands()) {
