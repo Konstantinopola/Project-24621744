@@ -1,6 +1,10 @@
 package bg.tu_varna.sit.f24621744.task.objectInteract;
 
 import bg.tu_varna.sit.f24621744.task.Command;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonException;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonFileException;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonNavigationException;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonTypeException;
 import bg.tu_varna.sit.f24621744.task.Session;
 import bg.tu_varna.sit.f24621744.task.jsonWork.JsonObject;
 import bg.tu_varna.sit.f24621744.task.jsonWork.JsonType;
@@ -33,18 +37,17 @@ public class Create implements Command {
      *
      * @param arguments is a parameter string (path keys and the target value at the end)
      * @param session is the current working session of the application
+     * @throws JsonException if parsing fails or navigation path is invalid
      */
     @Override
     public void execute(String arguments, Session session) {
         if (!session.isFileOpen()) {
-            System.out.println("Error: Open a file first.");
-            return;
+            throw new JsonFileException("open a file first.");
         }
 
         String[] parts = arguments.split("\\s+");
         if (parts.length < 2) {
-            System.out.println("Usage: create <key> <value>");
-            return;
+            throw new JsonNavigationException("Usage: create <key> <value>");
         }
 
         String rawValue = parts[parts.length - 1];
@@ -58,13 +61,9 @@ public class Create implements Command {
 
             if (success) {
                 System.out.println("Element created successfully.");
-            } else {
-                System.out.println("Error: Could not create element at the specified path.");
             }
-        }
-
-        catch (Exception e) {
-            System.out.println("Error: problem in JSON is: " + e.getMessage());
+        } catch (JsonException e) {
+            throw new JsonTypeException("creating error: " + e.getMessage());
         }
     }
 

@@ -1,6 +1,9 @@
 package bg.tu_varna.sit.f24621744.task.objectInteract;
 
 import bg.tu_varna.sit.f24621744.task.Command;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonException;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonFileException;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonTypeException;
 import bg.tu_varna.sit.f24621744.task.Session;
 import bg.tu_varna.sit.f24621744.task.parser.JsonParser;
 
@@ -39,6 +42,7 @@ public class Validate implements Command {
      * @param arguments - JSON string to validate, or an empty string
      * to validate the current file.
      * @param session - current application session.
+     * @throws JsonTypeException if the passed string is not in valid JSON format
      */
     @Override
     public void execute(String arguments, Session session) {
@@ -47,7 +51,7 @@ public class Validate implements Command {
             if (session.isFileOpen()) {
                 System.out.println("Valid JSON (current file is valid).");
             } else {
-                System.out.println("Error: No file is open and no validation string was provided.");
+                throw new JsonFileException("no file is open and no validation string was provided.");
             }
             return;
         }
@@ -57,8 +61,8 @@ public class Validate implements Command {
             JsonParser.parseString(arguments);
             System.out.println("Valid JSON.");
 
-        } catch (Exception e) {
-            System.out.println("Invalid JSON: " + e.getMessage());
+        } catch (JsonException e) {
+            throw new JsonTypeException("invalid JSON error: " + e.getMessage());
         }
     }
 

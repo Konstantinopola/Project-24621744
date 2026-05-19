@@ -69,9 +69,9 @@ public class Session {
     }
 
     /**
-     * Возвращает путь к текущему открытому файлу.
+     * Returns the path to the currently open file.
      *
-     * @return {@link Path} к открытому файлу или {@code null}, если файл не открыт
+     * @return {@link Path} to the open file, or {@code null} if the file is not open.
      */
     public Path getCurrentFilePath() {
         return currentFilePath;

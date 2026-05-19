@@ -1,5 +1,9 @@
 package bg.tu_varna.sit.f24621744.task;
 
+import bg.tu_varna.sit.f24621744.task.Exception.JsonException;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonFileException;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonNavigationException;
+
 import java.util.Scanner;
 
 /**
@@ -30,6 +34,7 @@ public class Main {
      * </ol>
      * The special command {@code help} displays a list of all available commands.
      * </p>
+     * @throws JsonException from all program, and sent to user correct error without stopping programm
      */
     public void start() {
         Scanner scanner = new Scanner(System.in);
@@ -46,12 +51,20 @@ public class Main {
 
             Command command = factory.getCommand(commandName);
 
-            if (command != null) {
-                command.execute(arguments, session);
-            } else if (commandName.equals("help")) {
-                printHelp();
-            } else {
-                System.out.println("Unknown command. Type \"help\".");
+            try {
+                if (command != null) {
+                    command.execute(arguments, session);
+                } else if (commandName.equals("help")) {
+                    printHelp();
+                } else {
+                    throw new JsonNavigationException("Unknown command. Type \"help\".");
+                }
+
+            } catch (JsonException e) {
+                System.out.println(e.getMessage());
+
+            } catch (Exception e) {
+                System.out.println("Unexpected error: " + e.getMessage());
             }
         }
     }

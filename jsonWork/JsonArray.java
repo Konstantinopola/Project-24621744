@@ -1,5 +1,8 @@
 package bg.tu_varna.sit.f24621744.task.jsonWork;
 
+import bg.tu_varna.sit.f24621744.task.Exception.JsonNavigationException;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonTypeException;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -97,6 +100,9 @@ public class JsonArray implements JsonType {
      */
     @Override
     public boolean append(JsonType value) {
+        if (value == null) {
+            throw new JsonTypeException("Cannot append a null instance object directly to JsonArray.");
+        }
         elements.add(value);
         return true;
     }
@@ -114,21 +120,34 @@ public class JsonArray implements JsonType {
      */
     @Override
     public void addChild(String key, JsonType value) {
-        System.out.println("Arrays do not support keys");
+        throw new JsonTypeException("Arrays do not support keys");
     }
 
     /**
-     * Implementation of intelligent recursive path creation within an array.
+     * Implements path creation and automatic array expansion.
      * <p>
-     * Extracts the index from the current path token. If the index exceeds the array size,
-     * the element is automatically initialized based on a lookahead for the next step in the path.
-     * (creates a {@link JsonArray} for numbers or a {@link JsonObject} for string keys).
+     * <b>Algorithm:</b>
+     * The path token {@code path[index]} is parsed into a numeric index of an array cell. If an invalid
+     * key is received, execution is aborted. If the index exceeds the current array size, or the cell is empty,
+     * the look-ahead mechanism is activated on the element {@code path[index + 1]}.
+     * Based on this analysis, either an {@link JsonArray} or {@link JsonObject} is created and inserted into the array.
+     * At the final step of the path, the value {@code newValue} is placed into the array at the specified index.
      * </p>
+     *
+     * @param path is an array of string components of the path (indices and keys).
+     * @param index is the current path processing depth. * @param newValue is the new JSON value to insert.
+     * @return {@code true} if the recursive construction and insertion operation completed successfully; otherwise {@code false}.
      */
     public boolean createPath(String[] path, int index, JsonType newValue) {
+        if (path == null || index >= path.length) {
+            throw new JsonNavigationException("Incomplete arguments passed to array branch creator.");
+        }
+
         try {
             int idx = Integer.parseInt(path[index]);
-            if (idx < 0) return false;
+            if (idx < 0) {
+                throw new JsonNavigationException("JSON arrays cannot allocate negative cell pointers: " + idx);
+            }
 
             if (index == path.length - 1) {
                 if (idx >= elements.size()) {
@@ -137,8 +156,9 @@ public class JsonArray implements JsonType {
                     elements.add(idx, newValue); // Insert with offset
                 }
                 return true;
-            } JsonType child;
+            }
 
+            JsonType child;
             if (idx >= elements.size()) {
                 // Looking ahead: what needs to be created inside the array?
                 if (isNumeric(path[index + 1])) {
@@ -157,7 +177,7 @@ public class JsonArray implements JsonType {
             return child.createPath(path, index + 1, newValue);
 
         } catch (NumberFormatException e) {
-            return false;
+            throw new JsonTypeException("Expected an array index digit but received text symbol key: '" + path[index] + "'.");
         }
     }
 
@@ -176,6 +196,20 @@ public class JsonArray implements JsonType {
         }
     }
 
+    /**
+     * Performs a recursive search and extracts a JSON node by its index within an array.
+     * <p>
+     * <b>Algorithm:</b>
+     * The method parses the current string path token {@code path[index]} into an integer. If the token is not
+     * a number, or the index is beyond the current array size (negative or too large),
+     * {@code null} is returned. If this is the final step of the path, the array element is returned.
+     * Otherwise, the recursive call goes deeper into the found element.
+     * </p>
+     *
+     * @param path is an array of string representations of indices/keys.
+     * @param index is the current position in the path being processed.
+     * @return the found element at the specified index, or {@code null} if the index or data type is invalid.
+     */
     @Override
     public JsonType getByPath(String[] path, int index) {
         if (path == null || index >= path.length) {
@@ -183,20 +217,42 @@ public class JsonArray implements JsonType {
         }
         try {
             int idx = Integer.parseInt(path[index]);
-            if (idx < 0 || idx >= elements.size()) return null;
+            if (idx < 0 || idx >= elements.size()) {
+                throw new JsonNavigationException("Requested target cell index " + idx + " is invalid for current array size of " + elements.size());
+            }
 
             return elements.get(idx).getByPath(path, index + 1);
         } catch (NumberFormatException e) {
-            return null;
+            throw new JsonTypeException("Direct string property access '" + path[index] + "' is invalid for arrays.");
         }
     }
 
+    /**
+     * Finds an existing array cell at the specified path and replaces its value.
+     * <p>
+     * <b>Algorithm:</b>
+     * The path token is converted to a numeric cell index. The index is checked to be valid for the current
+     * list size. If this is the final destination, the {@link List#set(int, Object)} method is called,
+     * replacing the old object with {@code newValue}. Otherwise, the request is passed further down the chain.
+     * </p>
+     *
+     * @param path is an array of paths, where the current token is expected as a valid index.
+     * @param index is the current path processing depth.
+     * @param newValue is the new value to overwrite the cell.
+     * @return {@code true} if the element at the specified numeric index existed and was modified;
+     * @throws JsonNavigationException if the path does not exist
+     * @throws JsonTypeException       if the path element is incompatible
+     */
     @Override
     public boolean setByPath(String[] path, int index, JsonType newValue) {
-        if (path == null || index >= path.length) return false;
+        if (path == null || index >= path.length) {
+            throw new JsonNavigationException("Array token routing missing execution configuration.");
+        }
         try {
             int idx = Integer.parseInt(path[index]);
-            if (idx < 0 || idx >= elements.size()) return false;
+            if (idx < 0 || idx >= elements.size()) {
+                throw new JsonNavigationException("Target array index " + idx + " does not map to any element allocation.");
+            }
 
             if (index == path.length - 1) {
                 elements.set(idx, newValue);
@@ -204,16 +260,35 @@ public class JsonArray implements JsonType {
             }
             return elements.get(idx).setByPath(path, index + 1, newValue);
         } catch (NumberFormatException e) {
-            return false;
+            throw new JsonTypeException("Cannot look up string key path '" + path[index] + "' inside an array.");
         }
     }
 
+    /**
+     * Removes the element at the specified numeric index from the array.
+     * <p>
+     * <b>Algorithm:</b>
+     * Converts a string step in the path to a number. If this is the last step, the element is removed from the list
+     * using {@link List#remove(int)}. All subsequent elements in the array are automatically
+     * shifted left, reducing the list size by one. If the path goes deeper, the task
+     * is delegated to a child element of the cell.
+     * </p>
+     *
+     * @param path is the path containing the index of the element to remove at the current position.
+     * @param index is the current recursion step.
+     * @return {@code true} if the element was successfully removed from the list;
+     * {@code false} if the index does not exist or an invalid text key was passed instead of the index.
+     */
     @Override
     public boolean deleteByPath(String[] path, int index) {
-        if (path == null || index >= path.length) return false;
+        if (path == null || index >= path.length) {
+            throw new JsonNavigationException("Missing navigation array references for deletion.");
+        }
         try {
             int idx = Integer.parseInt(path[index]);
-            if (idx < 0 || idx >= elements.size()) return false;
+            if (idx < 0 || idx >= elements.size()) {
+                throw new JsonNavigationException("Extraction index " + idx + " is unavailable for deletion tracking.");
+            }
 
             if (index == path.length - 1) {
                 elements.remove(idx);
@@ -221,10 +296,23 @@ public class JsonArray implements JsonType {
             }
             return elements.get(idx).deleteByPath(path, index + 1);
         } catch (NumberFormatException e) {
-            return false;
+            throw new JsonTypeException("Cannot process removal string key '" + path[index] + "' from sequence collection.");
         }
     }
 
+    /**
+     * Performs a deep, forward-looking search for a key in all nested structures within the current array's elements.
+     * <p>
+     * <b>Algorithm:</b>
+     * Since the array itself contains only ordinal indices and does not store string field keys,
+     * it cannot directly return a match. Instead, the method sequentially loops through
+     * each element of the {@code elements} array and redirects the {@code searchByKey} search command within them,
+     * allowing objects within the array to find and store matches.
+     * </p>
+     *
+     * @param key is the string key to search for.
+     * @param results is a collection list where all found objects will be added.
+     */
     @Override
     public void searchByKey(String key, List<JsonType> results) {
         for (JsonType child : elements) {

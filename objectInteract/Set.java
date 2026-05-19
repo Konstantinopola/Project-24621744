@@ -1,6 +1,10 @@
 package bg.tu_varna.sit.f24621744.task.objectInteract;
 
 import bg.tu_varna.sit.f24621744.task.Command;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonException;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonFileException;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonNavigationException;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonTypeException;
 import bg.tu_varna.sit.f24621744.task.Session;
 import bg.tu_varna.sit.f24621744.task.jsonWork.JsonType;
 import bg.tu_varna.sit.f24621744.task.parser.*;
@@ -38,18 +42,17 @@ public class Set implements Command {
      *
      * @param arguments is a string of arguments: the path and the new value, separated by spaces.
      * @param session is the current application session.
+     * @throws JsonException if the value is not in the correct format or the element at the given path does not exist
      */
     @Override
     public void execute(String arguments, Session session) {
         if (!session.isFileOpen()) {
-            System.out.println("Error: Open a file first!");
-            return;
+            throw new JsonFileException("open a file first!");
         }
 
         String[] parts = arguments.trim().split("\\s+");
         if (parts.length < 2) {
-            System.out.println("Usage: set <path> <string>");
-            return;
+            throw new JsonNavigationException("Usage: set <path> <string>");
         }
 
         // last argument is a new JSON string.
@@ -66,11 +69,9 @@ public class Set implements Command {
 
             if (success) {
                 System.out.println("Value updated successfully.");
-            } else {
-                System.out.println("\"Error: Element at the specified path doesn`t exist.");
             }
-        } catch (Exception e) {
-            System.out.println("Error: Invalid JSON format for the new value.");
+        } catch (JsonException e) {
+            throw new JsonTypeException("changing data error: " + e.getMessage());
         }
     }
 

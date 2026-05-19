@@ -1,5 +1,9 @@
 package bg.tu_varna.sit.f24621744.task.jsonWork;
 
+import bg.tu_varna.sit.f24621744.task.Exception.JsonException;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonNavigationException;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonTypeException;
+
 import java.util.List;
 
 /**
@@ -40,10 +44,11 @@ public interface JsonType {
      * Appends a child element to the end of the current node.
      * Only supported for collections (arrays).
      *
-     * @param value : The JSON component to add.
-     * @return true if the addition was successful; otherwise, false.
+     * @param value : The JSON component to add
+     * @return {@code true} if the addition was successful
+     * @throws JsonTypeException if the operation is called on an object or primitive
      */
-    boolean append(JsonType value);
+    boolean append(JsonType value) throws JsonException;
 
     /**
      * Adds or overwrites a property with a unique text key.
@@ -51,8 +56,9 @@ public interface JsonType {
      *
      * @param key is the string key of the property
      * @param value is the JSON node to match
+     * @throws JsonTypeException if the operation is not supported
      */
-    void addChild(String key, JsonType value);
+    void addChild(String key, JsonType value) throws JsonException;
 
     /**
      * Recursively traverses the specified path and creates all missing intermediate structures,
@@ -65,41 +71,47 @@ public interface JsonType {
      * @param path : an array of string tokens representing the full path to the target element
      * @param index : the current index being processed in the path array
      * @param newValue : the JSON value to be captured at the end of the path
-     * @return true if the fork and create operation completed successfully, otherwise false
+     * @return true if the fork and create operation completed successfully
+     * @throws JsonNavigationException if the path is invalid or cannot be created
+     * @throws JsonTypeException       if path elements are incompatible
      */
-    boolean createPath(String[] path, int index, JsonType newValue);
+    boolean createPath(String[] path, int index, JsonType newValue) throws JsonException;
 
     /**
      * Retrieves the JSON node located at the given path.
      * Traversal succeeds if all keys or indices are sequentially found in the tree.
      *
-     * @param path is an array of strings describing the route to the target element.
-     * @param index is the current index of the recursion step.
-     * @return the found node of type {@link JsonType}, or null if the path does not exist.
+     * @param path is an array of strings describing the route to the target element
+     * @param index is the current index of the recursion step
+     * @return the found node of type {@link JsonType}
+     * @throws JsonNavigationException if the path does not exist
      */
-    JsonType getByPath(String[] path, int index);
+    JsonType getByPath(String[] path, int index) throws JsonException;
 
     /**
      * Updates the value of an existing element at the specified path.
      * The method only works on existing tree nodes and does not create new structures.
      *
-     * @param path is an array of keys/indices leading to the element to be modified.
-     * @param index is the current position of the pointer in the path array.
-     * @param newValue is the new JSON value to substitute.
-     * @return true if the element was successfully found and updated; otherwise, false.
+     * @param path is an array of keys/indices leading to the element to be modified
+     * @param index is the current position of the pointer in the path array
+     * @param newValue is the new JSON value to substitute
+     * @return true if the element was successfully found and updated
+     * @throws JsonNavigationException if the path does not exist
+     * @throws JsonTypeException       if path elements are incompatible
      */
-    boolean setByPath(String[] path, int index, JsonType newValue);
+    boolean setByPath(String[] path, int index, JsonType newValue) throws JsonException;
 
     /**
      * Recursively deletes the tree node located at the endpoint of the specified path.
      * When deleting an element from an object, the key is completely erased; when deleting an element from an array,
      * subsequent elements are shifted left.
      *
-     * @param path : An array of strings forming the path to the object being deleted.
-     * @param index : The current recursive level.
-     * @return true if the element existed and was deleted; otherwise, false.
+     * @param path : An array of strings forming the path to the object being deleted
+     * @param index : The current recursive level
+     * @return true if the element existed and was deleted
+     * @throws JsonNavigationException if the path does not exist
      */
-    boolean deleteByPath(String[] path, int index);
+    boolean deleteByPath(String[] path, int index) throws JsonException;
 
     /**
      * Performs a deep, end-to-end search of all values for the given key.
@@ -108,6 +120,6 @@ public interface JsonType {
      * @param key is the string property key to search for
      * @param results is the list to which all found matches are added
      */
-    void searchByKey(String key, List<JsonType> results);
+    void searchByKey(String key, List<JsonType> results)  throws JsonException;
 
 }

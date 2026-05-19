@@ -1,6 +1,10 @@
 package bg.tu_varna.sit.f24621744.task.objectInteract;
 
 import bg.tu_varna.sit.f24621744.task.Command;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonException;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonFileException;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonNavigationException;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonTypeException;
 import bg.tu_varna.sit.f24621744.task.Session;
 import bg.tu_varna.sit.f24621744.task.jsonWork.JsonType;
 
@@ -45,22 +49,23 @@ public class Search implements Command {
      *  </pre>
      * @param arguments key to search for
      * @param session current application session
+     * @throws JsonFileException if the path does not exist
+     * @throws JsonNavigationException if the path to the element does not exist
      */
     @Override
     public void execute(String arguments, Session session) {
         if (!session.isFileOpen()) {
-            System.out.println("Error: Open a file first!");
-            return;
+            throw new JsonFileException("open a file first!");
         }
 
         String key = arguments.trim();
         if (key.isEmpty()) {
-            System.out.println("Usage: search <key>");
-            return;
+            throw new JsonNavigationException("Usage: search <key>");
         }
 
         String[] path = key.split("\\s+");
 
+        try{
         // Start the traversal from the initial index 0
         JsonType result = session.getRootNode().getByPath(path, 0);
 
@@ -68,7 +73,9 @@ public class Search implements Command {
             System.out.println("Key '" + key + "' not found.");
         } else {
             System.out.println(result.toPrettyString(0));
-
+            }
+        } catch(JsonException e){
+            throw new JsonTypeException("searching error: " + e.getMessage());
         }
     }
 

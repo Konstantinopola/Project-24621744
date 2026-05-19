@@ -1,5 +1,8 @@
 package bg.tu_varna.sit.f24621744.task.jsonWork;
 
+import bg.tu_varna.sit.f24621744.task.Exception.JsonNavigationException;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonTypeException;
+
 import java.util.List;
 
 /**
@@ -60,8 +63,7 @@ public abstract class JsonPrimitive implements JsonType {
      */
     @Override
     public boolean append(JsonType value) {
-        System.err.println("Error: Primitive don`t have a child to append!");
-        return false;
+        throw new JsonTypeException("Error: Primitive don`t have a child to append!");
     }
 
     /**
@@ -75,7 +77,7 @@ public abstract class JsonPrimitive implements JsonType {
      */
     @Override
     public void addChild(String key, JsonType value) {
-        System.err.println("Error: Primitive don`t have a child to add key " + key + "!");
+        throw new JsonTypeException("Error: Primitive don`t have a child to add key " + key + "!");
     }
 
     /**
@@ -84,8 +86,7 @@ public abstract class JsonPrimitive implements JsonType {
      */
     @Override
     public boolean createPath(String[] path, int index, JsonType newValue) {
-        System.err.println("Error: Primitives cannot contain a nested child path.");
-        return false;
+        throw new JsonTypeException("Error: Primitives cannot contain a nested child path.");
     }
 
     /**
@@ -96,16 +97,16 @@ public abstract class JsonPrimitive implements JsonType {
         if (path == null || index >= path.length) {
             return this;
         }
-        return null;
+        throw new JsonNavigationException("Primitive literal cannot process deeper path tokens starting at index: " + index);
     }
 
     /**
-     * Модификация вложенных элементов невозможна, так как примитив не имеет дочерней структуры.
-     * @return всегда false
+     * Modifying nested elements is not possible because the primitive has no child structure.
+     * @return is always false
      */
     @Override
     public boolean setByPath(String[] path, int index, JsonType newValue) {
-        return false;
+        throw new JsonTypeException("Value leaves do not expose internal routing nodes for modification.");
     }
 
     /**
@@ -114,7 +115,7 @@ public abstract class JsonPrimitive implements JsonType {
      */
     @Override
     public boolean deleteByPath(String[] path, int index) {
-        return false;
+        throw new JsonTypeException("Nested element paths do not map within primitive entity variables.");
     }
 
     /**
@@ -128,3 +129,4 @@ public abstract class JsonPrimitive implements JsonType {
 
 
 }
+

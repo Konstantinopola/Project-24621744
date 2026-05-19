@@ -1,5 +1,8 @@
 package bg.tu_varna.sit.f24621744.task.jsonWork;
 
+import bg.tu_varna.sit.f24621744.task.Exception.JsonNavigationException;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonTypeException;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,7 +115,7 @@ public class JsonObject implements JsonType {
      */
     @Override
     public boolean append(JsonType value) {
-        throw new UnsupportedOperationException("Object can`t be added without key!");
+        throw new JsonTypeException("Object can`t be added without key!");
         // no objects without key
     }
 
@@ -127,21 +130,33 @@ public class JsonObject implements JsonType {
      */
     @Override
     public void addChild(String key, JsonType value) {
+        if (key == null || key.trim().isEmpty()) {
+            throw new JsonNavigationException("Property key in JsonObject cannot be null or empty.");
+        }
         properties.put(key, value); // create or override
     }
 
     /**
-     * Implementation of intelligent recursive path creation.
+     * Creates a node structure along the given path.
      * <p>
-     * If there is no intermediate node, the method analyzes the next token
-     * of the path (index + 1). If the next token is numeric, an instance of {@link JsonArray} is automatically created; otherwise, an instance of {@link JsonObject} is created. This prevents
-     * accidentally overwriting arrays with objects when branching the structure.
+     * <b>Algorithm:</b>
+     * Extracts the key from the current position {@code index}. If this step is final
+     * ({@code index == path.length - 1}), the new value {@code newValue} is written directly to the object.
+     * If the path continues, the method checks for an intermediate node based on the current key.
+     * If there is no intermediate node (equal to {@code null}), the method performs a <b>look-ahead</b>
+     * on the token {@code path[index + 1]}. If the next token is a number, an {@link JsonArray} is created,
+     * otherwise, an {@link JsonObject}. Control is then recursively transferred to the created or found node.
      * </p>
+     *
+     * @param path is an array of string tokens specifying the full branching path.
+     * @param index is the current index in the path array being processed.
+     * @param newValue is the JSON value placed at the endpoint of the path.
+     * @return {@code true} if the entire chain was successfully created and the value was committed; otherwise {@code false}.
      */
     @Override
     public boolean createPath(String[] path, int index, JsonType newValue) {
         if (path == null || index >= path.length) {
-            return false;
+            throw new JsonNavigationException("Invalid structural path or index bounds in create operation.");
         }
 
         String key = path[index];
@@ -183,45 +198,115 @@ public class JsonObject implements JsonType {
         }
     }
 
+    /**
+     * Performs a recursive search and extracts a JSON node located at the given path.
+     * <p>
+     * <b>Algorithm:</b>
+     * The method takes a string token from the {@code path} array at the current index {@code index}
+     * and searches for it among the keys of this object. If the key is not found, {@code null} is returned.
+     * If this was the last element in the paths array, the found node is returned. Otherwise, control is passed down the chain to the child node, incrementing the index by 1.
+     * </p>
+     *
+     * @param path is an array of string tokens representing the full path to the target node.
+     * @param index is the current index of the recursion step (points to the key being processed in the paths array).
+     * @return the found node of type {@link JsonType}, or {@code null} if the key is missing or the path is interrupted.
+     */
     @Override
     public JsonType getByPath(String[] path, int index) {
         if (path == null || index >= path.length) {
             return this;
         }
         JsonType child = properties.get(path[index]);
-        if (child == null) return null;
+        if (child == null) {
+            throw new JsonNavigationException("Key '" + path[index] + "' does not exist in the current JsonObject.");
+        }
         return child.getByPath(path, index + 1);
     }
 
+    /**
+     * Recursively finds an existing element along the path and updates its value.
+     * <p>
+     * <b>Algorithm:</b>
+     * The method navigates through the object's keys. If a key is found at the current step and this step
+     * is the last in the {@code path} array, the old node is overwritten with a new one, {@code newValue}.
+     * If the path continues, the method checks for an intermediate node, and if one exists, passes the call on
+     * . The method {@code doesn't} create new tree branches if the path is specified incorrectly.
+     * </p>
+     *
+     * @param path is an array of keys leading to the element to be modified.
+     * @param index is the current position of the pointer in the path array.
+     * @param newValue is a new JSON value that will replace the old one.
+     * @return {@code true} if the element at the specified path existed and was successfully updated;
+     * @throws JsonNavigationException if the path does not exist
+     * @throws JsonTypeException       if the path element is incompatible
+     */
     @Override
     public boolean setByPath(String[] path, int index, JsonType newValue) {
-        if (path == null || index >= path.length) return false;
+        if (path == null || index >= path.length) {
+            throw new JsonNavigationException("null path reference or out-of-bounds index during set operation.");
+        }
         String currentKey = path[index];
 
         // If this is the last key in the path, we replace it (only if the key exists)
         if (index == path.length - 1) {
             replaceChild(currentKey, newValue);
+            return true;
         }
         // Going down deeper into the tree if not
         JsonType child = properties.get(currentKey);
-        if (child == null) return false;
+        if (child == null) {
+            throw new JsonNavigationException("path element '" + currentKey + "' is missing from the object branch.");
+        }
         return child.setByPath(path, index + 1, newValue);
     }
 
+    /**
+     * Recursively removes the tree node located at the endpoint of the specified path.
+     * <p>
+     * <b>Algorithm:</b>
+     * Searches for the key {@code path[index]} within the current object. If this is the last key
+     * in the paths array, the method completely removes the key-value pair from the object's internal map using
+     * {@link Map#remove(Object)}. If the path requires deeper exploration, the request is delegated to
+     * a child element.
+     * </p>
+     *
+     * @param path is an array of strings that form the exact path to the object to be removed.
+     * @param index is the current recursive exploration level.
+     * @return {@code true} if the element was found and removed from the structure and
+     * {@code false} if the element did not exist.
+     */
     @Override
     public boolean deleteByPath(String[] path, int index) {
-        if (path == null || index >= path.length) return false;
+        if (path == null || index >= path.length) {
+            throw new JsonNavigationException("Invalid path block tracking for removal execution.");
+        }
         String currentKey = path[index];
 
         if (index == path.length - 1) {
-            return properties.remove(currentKey) != null;
+             properties.remove(currentKey);
+             return true;
         }
 
         JsonType child = properties.get(currentKey);
-        if (child == null) return false;
+        if (child == null) {
+            throw new JsonNavigationException("Nested branch key '" + currentKey + "' is absent from structure.");
+        }
         return child.deleteByPath(path, index + 1);
     }
 
+    /**
+     * Performs a deep search for all values with the given key within the current object.
+     * <p>
+     * <b>Algorithm:</b>
+     * First, the method checks whether the current object contains a direct property named {@code key}.
+     * If such a property is found, the node associated with it is added to the resulting list {@code results}.
+     * After this, the method starts a loop that traverses all nested child structures (objects and arrays)
+     * of this object, calling this method recursively on them to find matches at deeper levels.
+     * </p>
+     *
+     * @param key is the string key of the property to search for (e.g., "id" or "name").
+     * @param results is a list collection that dynamically accumulates all found matches.
+     */
     @Override
     public void searchByKey(String key, List<JsonType> results) {
         if (properties.containsKey(key)) {
@@ -231,6 +316,5 @@ public class JsonObject implements JsonType {
             child.searchByKey(key, results);
         }
     }
-
 
 }

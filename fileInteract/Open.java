@@ -1,5 +1,6 @@
 package bg.tu_varna.sit.f24621744.task.fileInteract;
 
+import bg.tu_varna.sit.f24621744.task.Exception.JsonFileException;
 import bg.tu_varna.sit.f24621744.task.Session;
 import bg.tu_varna.sit.f24621744.task.jsonWork.JsonObject;
 import bg.tu_varna.sit.f24621744.task.jsonWork.JsonType;
@@ -47,8 +48,7 @@ public class Open implements Command {
     @Override
     public void execute(String arguments, Session session) {
         if (arguments.isEmpty()) {
-            System.out.println("Error: Please provide a path to a file (for example: open data.json)");
-            return;
+            throw new JsonFileException("Error: Please provide a path to a file (for example: open data.json)");
         }
 
         if (!arguments.toLowerCase().endsWith(".json")) {

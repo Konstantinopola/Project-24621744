@@ -1,5 +1,6 @@
 package bg.tu_varna.sit.f24621744.task.parser;
 
+import bg.tu_varna.sit.f24621744.task.Exception.JsonParseException;
 import bg.tu_varna.sit.f24621744.task.jsonWork.*;
 import bg.tu_varna.sit.f24621744.task.jsonWork.primitiveType.*;
 
@@ -68,6 +69,9 @@ public class JsonParser {
      * @throws RuntimeException if the string contains invalid JSON
      */
     public static JsonType parseString (String arguments){
+        if (arguments == null || arguments.trim().isEmpty()) {
+            throw new JsonParseException("The input string is empty or null.");
+        }
         Lexer lexer = new Lexer(arguments);
         List<Token> tokens = lexer.tokenize();
 
@@ -84,7 +88,7 @@ public class JsonParser {
      * </p>
      *
      * @return {@link JsonType} node corresponding to the current token
-     * @throws RuntimeException if an unexpected token is encountered
+     * @throws JsonParseException if an unexpected token is encountered
      */
     private JsonType parseValue() {
         Token token = tokens.get(pos);
@@ -117,7 +121,7 @@ public class JsonParser {
                 pos++;
                 return new JsonPrNull();
             default:
-                throw new RuntimeException("Parser error: Unexpected token " + token.type);
+                throw new JsonParseException("Parser error: Unexpected token " + token.type);
         }
     }
 
@@ -130,7 +134,7 @@ public class JsonParser {
      * </p>
      *
      * @return the constructed {@link JsonObject} with all parsed properties
-     * @throws RuntimeException if the object structure is corrupted
+     * @throws JsonParseException if the object structure is corrupted
      * (missing key, colon, or closing parenthesis)
      */
     private JsonObject parseObject() {
@@ -140,13 +144,13 @@ public class JsonParser {
         while (tokens.get(pos).type != TokenType.RIGHT_BRACE) {
             Token keyToken = tokens.get(pos);
             if (keyToken.type != TokenType.STRING) {
-                throw new RuntimeException("Parser error: Expected String key");
+                throw new JsonParseException("Parser error: Expected String key");
             }
             String key = keyToken.value;
             pos++;
 
             if (tokens.get(pos).type != TokenType.COLON) {
-                throw new RuntimeException("Parser error: Expected ':' after key");
+                throw new JsonParseException("Parser error: Expected ':' after key");
             }
             pos++;
 
@@ -165,12 +169,12 @@ public class JsonParser {
      * Parses a JSON array ({@code [ value1, value2, ... ]}).
      * <p>
      * Expects the current token to be {@link TokenType#LEFT_BRACKET}.
-     * Reads comma-separated values ​​sequentially,
+     * Reads comma-separated values sequentially,
      * until {@link TokenType#RIGHT_BRACKET} is encountered.
      * </p>
      *
      * @return the constructed {@link JsonArray} with all parsed elements
-     * @throws RuntimeException if the array structure is corrupted
+     * @throws JsonParseException if the array structure is corrupted
      * (e.g., a closing bracket is missing)
      */
     private JsonArray parseArray() {

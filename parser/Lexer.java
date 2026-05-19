@@ -1,5 +1,7 @@
 package bg.tu_varna.sit.f24621744.task.parser;
 
+import bg.tu_varna.sit.f24621744.task.Exception.JsonParseException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,7 +110,7 @@ public class Lexer {
      *
      * @return a token of type {@link TokenType#TRUE}, {@link TokenType#FALSE}
      * or {@link TokenType#NULL}
-     * @throws RuntimeException if the word is not a valid JSON keyword
+     * @throws JsonParseException if the word is not a valid JSON keyword
      */
     private Token readBoolean() {
         int start = pos;
@@ -120,7 +122,7 @@ public class Lexer {
             case "true" -> new Token(TokenType.TRUE, "true");
             case "false" -> new Token(TokenType.FALSE, "false");
             case "null" -> new Token(TokenType.NULL, "null");
-            default -> throw new RuntimeException("Unknown keyword: " + word);
+            default -> throw new JsonParseException("Unknown keyword: " + word);
         };
     }
 

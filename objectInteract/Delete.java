@@ -1,6 +1,10 @@
 package bg.tu_varna.sit.f24621744.task.objectInteract;
 
 import bg.tu_varna.sit.f24621744.task.Command;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonException;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonFileException;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonNavigationException;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonTypeException;
 import bg.tu_varna.sit.f24621744.task.Session;
 
 /**
@@ -26,28 +30,29 @@ public class Delete implements Command {
      *
      * @param arguments path string (space-separated keys)
      * @param session current session
+     * @throws JsonFileException if the path does not exist
+     * @throws JsonNavigationException if {@code arguments} are empty
      */
     @Override
     public void execute(String arguments, Session session) {
         if (!session.isFileOpen()) {
-            System.out.println("Error: Open a file first.");
-            return;
+            throw new JsonFileException("open a file first.");
         }
 
         arguments = arguments.trim();
         if (arguments.isEmpty()) {
-            System.out.println("Usage: delete <path>");
-            return;
+            throw new JsonNavigationException("Usage: delete <path>");
         }
 
         String[] path = arguments.split("\\s+");
 
-        boolean isDeleted = session.getRootNode().deleteByPath(path, 0);
-
-        if (isDeleted) {
-            System.out.println("Element deleted successfully.");
-        } else {
-            System.out.println("Error: Invalid path. Element doesn`t not exist.");
+        try {
+            boolean isDeleted = session.getRootNode().deleteByPath(path, 0);
+            if (isDeleted) {
+                System.out.println("Element deleted successfully.");
+            }
+        } catch (JsonException e) {
+            throw new JsonTypeException("deleting error: " + e.getMessage());
         }
     }
 

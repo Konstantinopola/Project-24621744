@@ -1,6 +1,9 @@
 package bg.tu_varna.sit.f24621744.task.objectInteract;
 
 import bg.tu_varna.sit.f24621744.task.Command;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonException;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonFileException;
+import bg.tu_varna.sit.f24621744.task.Exception.JsonTypeException;
 import bg.tu_varna.sit.f24621744.task.Session;
 
 /**
@@ -33,14 +36,18 @@ public class Print implements Command {
      *
      * @param arguments command arguments (not used)
      * @param session current application session
+     * @throws JsonFileException if the path does not exist
      */
     @Override
     public void execute(String arguments, Session session) {
         if (!session.isFileOpen()) {
-            System.out.println("Error: No file open.");
-            return;
+            throw new JsonFileException("no file open.");
         }
-        System.out.println(session.getRootNode().toPrettyString(0));
+        try {
+            System.out.println(session.getRootNode().toPrettyString(0));
+        } catch (JsonException e) {
+            throw new JsonTypeException("formating error: " + e.getMessage());
+        }
     }
 
     /**
